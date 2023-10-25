@@ -202,7 +202,20 @@ if MaxMarking > 6:
 else:
     print("La red de Peri es " + str(MaxMarking) + " acotada")
 
-"""La Matriz de Incidencia es una herramienta matemática que se utiliza para representar 
+"""
+ REDES DE PETRI
+Las Redes de Petri son una metodología para el
+modelado y el estudio de diversos sistemas, ya que a
+diferencia de otros modelos gráficos de comportamiento
+dinámico, son una herramienta matemática que admite
+una representación gráfica que facilita el análisis y las
+modificaciones locales del modelo; permitiendo la
+representación clara y condensada del paralelismo y la
+sincronización, llevando el modelo a condiciones límite,
+las cuales en un modelo real serían difíciles de lograr o
+con alto costo de implementación.
+
+La Matriz de Incidencia es una herramienta matemática que se utiliza para representar 
 relaciones entre dos conjuntos de elementos. Esta matriz se compone de una estructura
 rectangular formada por filas y columnas, donde cada fila representa un elemento del
 primer conjunto y cada columna representa un elemento del segundo conjunto.
@@ -213,7 +226,8 @@ primer conjunto y cada columna representa un elemento del segundo conjunto.
     un valor numérico a la relación entre los elementos de los dos conjuntos.
 
 En la funcion Main se ingresa una matriz de input y otra de output, cuya
-diferencia resulta en la matriz de incidencia.
+diferencia resulta en la matriz de incidencia. esta matriz describe el efecto
+de disparo de cada transicion por cada lugar de la red.
 El State refiere al estado inicial de los tokens en la red, a partir de alli
 se simula el disparo de las transiciones, hasta encontrar deadlocks o ciclos
 y renueva los markings de la red.
@@ -226,8 +240,32 @@ para comprobar que transiciones pueden ser disparadas.
 
 Next Marking toma la matriz de incidencia, la marca inicial y un vector
 constante u, que contiene las marcas necesarias para llevar a cabo la 
-secuencia. Donde NextMarking = M + u * A, devolviendo así la siguiente marca
-cuando se dispare la transicion.
+secuencia. Donde NextMarking = M0 + u * A (Ecuación de estado), devolviendo
+así la siguiente marca cuando se dispare la transicion.
+
+El sistema calcula tambien las invariantes de la red:
+el invariante de lugar es un vector de ponderación n x 1 γ=transpose([γ0 γ1 ... γN])
+tal que A*u=0, donde A es la matriz de incidencia de la Red de Petri.
+La ecuación de estado de alguna red se escribe como M = M0 + vA (siendo M0 la marca 
+del estado inicial, M la marca de algún otro estado, u la suma de los vectores de disparo
+para alcanzar la marca M). A partir de ahí, podemos escribir M * γ = M0 * γ + u * A * γ ==> M * γ = M0*γ.
+La última ecuación se deriva por definición, como A * γ = 0. Como la ecuación M = M0 + u * A es 
+válida para cualquier estado posterior alcanzable desde M0, esto significa que el número de 
+tokens ponderados con la invariante de lugar seguirá siendo el mismo (es una constante) para 
+todos los estados alcanzables. Sin embargo, hay que tener en cuenta que para diferentes marcas 
+iniciales, esta constante normalmente no será la misma.
+Las invariantes son afirmaciones que se garantizan como verdaderas en 
+todos los estados alcanzables de una red determinada. Las invariantes 
+estructurales son útiles para derivar ciertas propiedades, como conservación,
+vivacidad, estados de origen y consistencia, entre otras. 
+Aquí veremos dos tipos de invariantes:
+* Invariante T:  identifica un conjunto de disparos de transición que 
+pueden devolver la red a la misma marca, lo que indica un posible bucle.
+* Invariante P: muestra un conjunto de lugares en los que la suma ponderada 
+de sus tokens permanece constante en cualquier marca posible alcanzable, 
+independientemente de la marca inicial. Estas invariantes se pueden 
+utilizar para demostrar la exclusión mutua y pueden verse como un 
+componente neto que preserva el token. 
 
 Por ultimo Draw Petri toma el input y output para cancular un grafo dirigido
 donde peuden verse los nodos: lugares y transiciones, además de los arcos de 
