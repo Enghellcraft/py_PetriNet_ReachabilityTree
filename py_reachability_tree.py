@@ -20,8 +20,6 @@ def main(input, output, state):
     global TabIndex
     global Trans
     global MaxMarking
-    
-    
 
     if np.shape(input) != np.shape(output):
         print("Error: Matrices de Input y Output deben tener las mismas dimensiones")
@@ -30,10 +28,8 @@ def main(input, output, state):
         print("Error: El Estado Inincial de la Matriz es erroneo, debe ser de- " + str(np.shape(input)[0]))
         return
 
-    # Find Incidence Matrix
+    # Matriz de incidencia
     A = output - input
-
-    
 
     transitions = GetTransitions(input, state)
     
@@ -45,7 +41,7 @@ def main(input, output, state):
     if sum(transitions[0, :]) == 0:
         # DEADLOCK
         Dead = True
-        print("Dead")
+        print("Deadlock")
     elif sum(transitions[0, :]) > 1:
         # Multiples Ramas
         for count in range(0, np.shape(transitions)[1]):
@@ -155,14 +151,14 @@ def draw_petri_net(input, output):
             if output[i, j] != 0:
                 G.add_edge(f't{i}', f'p{j}', edge_type='Output')
 
-    # Draw the graph with the spring_layout algorithm
+    # Gráfico Circular
     pos = nx.circular_layout(G)
 
-    # Draw the nodes with different shapes and colors based on their node_type
+    # Grafica de Nodos
     nx.draw_networkx_nodes(G, pos, nodelist=[n for n, d in G.nodes(data=True) if d['node_type'] == 'Lugar'], node_shape='o', node_color='lightblue')
     nx.draw_networkx_nodes(G, pos, nodelist=[n for n, d in G.nodes(data=True) if d['node_type'] == 'Transicion'], node_shape='s', node_color='lightgreen')
 
-    # Draw the edges with different colors based on their edge_type
+    # Grafica de arcos
     nx.draw_networkx_edges(G, pos, edgelist=[(u, v) for u, v, d in G.edges(data=True) if d['edge_type'] == 'Input'], edge_color='pink')
     nx.draw_networkx_edges(G, pos, edgelist=[(u, v) for u, v, d in G.edges(data=True) if d['edge_type'] == 'Output'], edge_color='purple')
 
@@ -200,9 +196,40 @@ tInvarient, pInvarient = InvarientSolver(input, output)
 print("T-Invarient = " + str(tInvarient))
 print("P-Invarient = " + str(pInvarient))
 print("Ciclo encontrado = " + str(Cyclic))
-print("Muerta = " + str(Dead))
+print("Deadlock Encontrado = " + str(Dead))
 if MaxMarking > 6:
     print("La red de Petri es NO Acotada")
 else:
     print("La red de Peri es " + str(MaxMarking) + " acotada")
-    
+
+"""La Matriz de Incidencia es una herramienta matemática que se utiliza para representar 
+relaciones entre dos conjuntos de elementos. Esta matriz se compone de una estructura
+rectangular formada por filas y columnas, donde cada fila representa un elemento del
+primer conjunto y cada columna representa un elemento del segundo conjunto.
+
+    * Matriz de incidencia binaria: Esta matriz se utiliza cuando solo se quiere
+    conocer si hay o no una relación entre los elementos de los dos conjuntos.
+    * Matriz de incidencia ponderada: Esta matriz se utiliza cuando se quiere asignar
+    un valor numérico a la relación entre los elementos de los dos conjuntos.
+
+En la funcion Main se ingresa una matriz de input y otra de output, cuya
+diferencia resulta en la matriz de incidencia.
+El State refiere al estado inicial de los tokens en la red, a partir de alli
+se simula el disparo de las transiciones, hasta encontrar deadlocks o ciclos
+y renueva los markings de la red.
+
+La función check max marking, toma las marcas siguientes y máximas, para
+compararlas y agregar la proxima máxima marca.
+
+La función transitions toma el input como referencia y los markings actuales
+para comprobar que transiciones pueden ser disparadas.
+
+Next Marking toma la matriz de incidencia, la marca inicial y un vector
+constante u, que contiene las marcas necesarias para llevar a cabo la 
+secuencia. Donde NextMarking = M + u * A, devolviendo así la siguiente marca
+cuando se dispare la transicion.
+
+Por ultimo Draw Petri toma el input y output para cancular un grafo dirigido
+donde peuden verse los nodos: lugares y transiciones, además de los arcos de 
+entrada y salida de los nodos.
+    """
