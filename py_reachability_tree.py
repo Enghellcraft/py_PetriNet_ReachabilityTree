@@ -1,10 +1,8 @@
-# instalar pip install pnet
-
 import numpy as np
 from numpy.linalg import svd
 from sympy import *
-from pnet import *
-
+import networkx as nx
+import matplotlib.pyplot as plt
 
 NumberOfIt = 0
 Trans = 0
@@ -22,7 +20,8 @@ def main(input, output, state):
     global TabIndex
     global Trans
     global MaxMarking
-    global TokenList
+    
+    
 
     if np.shape(input) != np.shape(output):
         print("Error: Matrices de Input y Output deben tener las mismas dimensiones")
@@ -33,6 +32,8 @@ def main(input, output, state):
 
     # Find Incidence Matrix
     A = output - input
+
+    
 
     transitions = GetTransitions(input, state)
     
@@ -94,16 +95,12 @@ def main(input, output, state):
             for i in range(TabIndex):
                 print('    ', end=' ')
             print("Transition " + str(Trans + 1) + ": " + str(NM.T))
-            main(input, output, NM)
+            main(input, output, NM)      
             
-    draw_petri_net(input, output)
-
-
 def CheckMaxMarking(nextMarking, MaxMarking):
     if max(nextMarking) > MaxMarking:
         return int(np.max(nextMarking, axis=None))
     return MaxMarking
-
 
 def GetTransitions(input, state):
     # Determina que transiciones pueden dispararse
@@ -112,7 +109,6 @@ def GetTransitions(input, state):
         if np.amin(state.T - input[:, i]) > -1:
             u[0, i] = 1
     return u
-
 
 def InvarientSolver(input, output):
     A = Matrix(output - input)
@@ -140,39 +136,52 @@ def NextMarking(A, M, u):
     return MPrime
 
 def draw_petri_net(input, output):
-    # Create places
-    places = [Place("p" + str(i)) for i in range(np.shape(input)[0])]
+    # Crea grafo dirigido
+    G = nx.DiGraph()
 
-    # Create transitions
-    transitions = [Transition("t" + str(i)) for i in range(np.shape(input)[0])]
+    # Agrega Nodos Lugar
+    for i in range(np.shape(input)[1]):
+        G.add_node(f'p{i}', node_type='Lugar')
 
-    # Create arcs
-    arcs = []
+    # Agrega Nodos Transicion
     for i in range(np.shape(input)[0]):
-        if output[i, i] == 1:  # If there is an arc from place i to place i
-            arcs.append(Arc(places[i], transitions[i]))
-            arcs.append(Arc(transitions[i], places[i]))
-        for j in range(np.shape(input)[0]):
-            if output[i, j] == 1 and i != j:  # If there is an arc from place i to place j
-                arcs.append(Arc(places[i], transitions[j]))
-                arcs.append(Arc(transitions[j], places[j]))
+        G.add_node(f't{i}', node_type='Transicion')
 
-    # Create Petri net
-    net = PetriNet("net", places, transitions, arcs)
+    # Agrega los arcos
+    for i in range(np.shape(input)[0]):
+        for j in range(np.shape(input)[1]):
+            if input[i, j] != 0:
+                G.add_edge(f'p{j}', f't{i}', edge_type='Input')
+            if output[i, j] != 0:
+                G.add_edge(f't{i}', f'p{j}', edge_type='Output')
 
-    # Create marking
-    marking = Marking({places[i]: 1 for i in range(np.shape(input)[0])})
+    # Draw the graph with the spring_layout algorithm
+    pos = nx.circular_layout(G)
 
-    # Visualize Petri net
-    net.visualize(marking)
+    # Draw the nodes with different shapes and colors based on their node_type
+    nx.draw_networkx_nodes(G, pos, nodelist=[n for n, d in G.nodes(data=True) if d['node_type'] == 'Lugar'], node_shape='o', node_color='lightblue')
+    nx.draw_networkx_nodes(G, pos, nodelist=[n for n, d in G.nodes(data=True) if d['node_type'] == 'Transicion'], node_shape='s', node_color='lightgreen')
 
-input = np.asarray([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-output = np.asarray([[0, 1, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-initialState = np.asarray([[1], [0], [1], [1], [1]])
+    # Draw the edges with different colors based on their edge_type
+    nx.draw_networkx_edges(G, pos, edgelist=[(u, v) for u, v, d in G.edges(data=True) if d['edge_type'] == 'Input'], edge_color='pink')
+    nx.draw_networkx_edges(G, pos, edgelist=[(u, v) for u, v, d in G.edges(data=True) if d['edge_type'] == 'Output'], edge_color='purple')
 
-# input = np.asarray([[1, 0, 0], [1, 0, 0], [1, 0, 1], [0, 1, 0]])
-# output = np.asarray([[1, 0, 0], [0, 1, 0], [0, 1, 0], [0, 0, 1]])
-# initialState = np.asarray([[1], [0], [1], [0]])
+    nx.draw_networkx_labels(G, pos)
+    plt.show()
+
+#input = np.asarray([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+#output = np.asarray([[0, 1, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
+#initialState = np.asarray([[1], [0], [1], [1], [1]])
+
+input = np.asarray([[1, 0, 0],
+                    [1, 0, 0], 
+                    [1, 0, 1], 
+                    [0, 1, 0]])
+output = np.asarray([[1, 0, 0], 
+                     [0, 1, 0], 
+                     [0, 1, 0], 
+                     [0, 0, 1]])
+initialState = np.asarray([[1], [0], [1], [0]])
 
 # T Invarient 
 # input = np.asarray([[0, 1, 0, 2], [1, 1, 0, 0], [0, 0, 1, 0]])
@@ -186,6 +195,7 @@ initialState = np.asarray([[1], [0], [1], [1], [1]])
 
 
 main(input, output, initialState)
+draw_petri_net(input, output)
 tInvarient, pInvarient = InvarientSolver(input, output)
 print("T-Invarient = " + str(tInvarient))
 print("P-Invarient = " + str(pInvarient))
