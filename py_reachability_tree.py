@@ -165,11 +165,11 @@ def draw_petri_net(input, output):
     nx.draw_networkx_labels(G, pos)
     plt.show()
 
-#input = np.asarray([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-#output = np.asarray([[0, 1, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-#initialState = np.asarray([[1], [0], [1], [1], [1]])
+input = np.asarray([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+output = np.asarray([[0, 1, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
+initialState = np.asarray([[1], [0], [1], [1], [1]])
 
-input = np.asarray([[1, 0, 0],
+""" input = np.asarray([[1, 0, 0],
                     [1, 0, 0], 
                     [1, 0, 1], 
                     [0, 1, 0]])
@@ -177,7 +177,7 @@ output = np.asarray([[1, 0, 0],
                      [0, 1, 0], 
                      [0, 1, 0], 
                      [0, 0, 1]])
-initialState = np.asarray([[1], [0], [1], [0]])
+initialState = np.asarray([[1], [0], [1], [0]]) """
 
 # T Invarient 
 # input = np.asarray([[0, 1, 0, 2], [1, 1, 0, 0], [0, 0, 1, 0]])
@@ -204,16 +204,30 @@ else:
 
 """
  REDES DE PETRI
-Las Redes de Petri son una metodología para el
-modelado y el estudio de diversos sistemas, ya que a
-diferencia de otros modelos gráficos de comportamiento
-dinámico, son una herramienta matemática que admite
-una representación gráfica que facilita el análisis y las
-modificaciones locales del modelo; permitiendo la
-representación clara y condensada del paralelismo y la
-sincronización, llevando el modelo a condiciones límite,
-las cuales en un modelo real serían difíciles de lograr o
-con alto costo de implementación.
+Las Redes de Petri son una metodología para el modelado y el estudio de diversos 
+sistemas, ya que a diferencia de otros modelos gráficos de comportamiento
+dinámico, son una herramienta matemática que admite una representación gráfica 
+que facilita el análisis y las modificaciones locales del modelo; permitiendo la
+representación clara y condensada del paralelismo y la sincronización, llevando 
+el modelo a condiciones límite, las cuales en un modelo real serían difíciles de 
+lograr o con alto costo de implementación.
+
+ÁRBOL DE ALCANZABILIDAD
+Dada una red de Petri (N,M_0) desde una marca inicial M_0 podemos obtener tantas nuevas
+marcas como transiciones habilitadas. Así, de cada nueva marca podemos obtener más marcas. 
+Este proceso genera un árbol de marcas o árbol de Alcanzabilidad.
+Los nodos representan las marcas generadas a partir de M_0 (la raíz) y sus sucesores, y 
+cada arco representa un disparo de una transición, la cual transforma una marca en otra.
+
+Algunas de las propiedades que se pueden estudiar utilizando el árbol de 
+alcanzabilidad T para una red de Petri (N,M_0) son las siguientes:
+  * Una red (N,M_0) es acotada y así R(N,M_0) es finito si y solo si \omega no aparece
+    en nigún nodo etiquetado en T.
+  * Una red (N,M_0) es libre si y solo si solo aparecen ceros y unos en las etiquetas de 
+    los nodos de T.
+  * Una transición t es muerta si y solo si no aparece como etiqueta de un arco en T.
+  * Si M es alcanzable desde M_0, entonces existe un nodo etiquetado M'$tal que M <= M'.
+
 
 La Matriz de Incidencia es una herramienta matemática que se utiliza para representar 
 relaciones entre dos conjuntos de elementos. Esta matriz se compone de una estructura
