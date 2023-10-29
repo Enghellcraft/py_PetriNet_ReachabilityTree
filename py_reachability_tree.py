@@ -39,9 +39,9 @@ def main(input, output, state):
     if NumberOfIt > 30:
         return
     if sum(transitions[0, :]) == 0:
-        # DEADLOCK
+        # Marking DEAD
         Dead = True
-        print("Deadlock")
+        print("Dead")
     elif sum(transitions[0, :]) > 1:
         # Multiples Ramas
         for count in range(0, np.shape(transitions)[1]):
@@ -196,7 +196,7 @@ tInvarient, pInvarient = InvarientSolver(input, output)
 print("T-Invarient = " + str(tInvarient))
 print("P-Invarient = " + str(pInvarient))
 print("Ciclo encontrado = " + str(Cyclic))
-print("Deadlock Encontrado = " + str(Dead))
+print("Dead Encontrado = " + str(Dead))
 if MaxMarking > 6:
     print("La red de Petri es NO Acotada")
 else:
