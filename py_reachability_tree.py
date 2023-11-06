@@ -73,6 +73,8 @@ def main(input, output, state):
 
     else:
         # Camino Único
+        Trans += 1
+        print("Transitions: ", transitions, "Nro:", Trans)
         NM = NextMarking(A, state, transitions.T)
         MaxMarking = CheckMaxMarking(NM, MaxMarking)
         found = False
@@ -90,7 +92,6 @@ def main(input, output, state):
             MarkingList.append(NM)
             for i in range(TabIndex):
                 print('    ', end=' ')
-            print("Transition " + str(Trans + 1) + ": " + str(NM.T))
             main(input, output, NM)      
             
 def CheckMaxMarking(nextMarking, MaxMarking):
