@@ -24,7 +24,7 @@ def main(input, output, state):
     global Graph
     
     def print_transition(state, transition, transition_number):
-       print(str(state.T) + "--> Realizada Transición: " + str(transition_number + 1))
+       print(str(state.T) + "--> Realizado Disparo: " + str(transition_number))
 
     if np.shape(input) != np.shape(output):
         print("Error: Matrices de Input y Output deben tener las mismas dimensiones")
@@ -96,13 +96,13 @@ def main(input, output, state):
             Cyclic = True
             for i in range(TabIndex):
                 print('    ', end=' ')
-            print("Ciclo encontrado" + str(NM.T))
+            print("Ciclo encontrado " + str(NM.T))
         else:
             MarkingList.append(NM)
             for i in range(TabIndex):
                 print('    ', end=' ')
-            count = 0  # Define count here
-            print_transition(NM, Trans, count)
+            TabIndex = TabIndex + 1    
+            print_transition(NM, Trans, TabIndex)
             main(input, output, NM)
         
 def CheckMaxMarking(nextMarking, MaxMarking):
