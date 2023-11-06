@@ -11,6 +11,7 @@ MarkingList = []
 Cyclic = False
 Dead = False
 TabIndex = 0
+Graph = nx.DiGraph()
 
 def main(input, output, state):
     global NumberOfIt
@@ -20,6 +21,7 @@ def main(input, output, state):
     global TabIndex
     global Trans
     global MaxMarking
+    global Graph
 
     if np.shape(input) != np.shape(output):
         print("Error: Matrices de Input y Output deben tener las mismas dimensiones")
@@ -74,8 +76,9 @@ def main(input, output, state):
     else:
         # Camino Único
         Trans += 1
+        #print("Estado", state.T)
         if(Trans == 1):
-            print("Transitions Nro:", Trans, ": ",transitions)
+            print("Transitions Ini:", Trans, ": ",transitions)
         NM = NextMarking(A, state, transitions.T)
         MaxMarking = CheckMaxMarking(NM, MaxMarking)
         found = False
@@ -83,7 +86,7 @@ def main(input, output, state):
             if np.array_equal(elm, NM):
                 found = True
                 break
-
+            
         if found:
             Cyclic = True
             for i in range(TabIndex):
@@ -94,7 +97,9 @@ def main(input, output, state):
             for i in range(TabIndex):
                 print('    ', end=' ')
             print("Transitions Nro:", (Trans+1), ": ", NM.T)
-            main(input, output, NM)      
+            Graph.add_node(str(NM.T))
+            Graph.add_edge(str(state.T), str(NM.T))
+            main(input, output, NM)
             
 def CheckMaxMarking(nextMarking, MaxMarking):
     if max(nextMarking) > MaxMarking:
@@ -170,6 +175,26 @@ def draw_petri_net(input, output):
     nx.draw_networkx_labels(G, pos)
     plt.show()
 
+
+def draw_graph(G):
+    # Create a new figure
+    plt.figure(figsize=(5, 7))
+
+    G_invertido = G.reverse()
+
+    # Draw the graph
+    nx.draw(G_invertido, with_labels=True)
+
+    # Position the nodes manually
+    pos = nx.spring_layout(G_invertido)
+    pos = nx.kamada_kawai_layout(G_invertido)
+
+    # Update the positions of the nodes
+    nx.draw_networkx_nodes(G_invertido, pos)
+    nx.draw_networkx_labels(G_invertido, pos)
+
+    plt.show()
+
 #input = np.asarray([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
 #output = np.asarray([[0, 1, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
 #initialState = np.asarray([[1], [0], [1], [1], [1]])
@@ -193,7 +218,9 @@ output = np.asarray([[0,1,0],[0,0,1],[1,0,0]])
 initialState = np.asarray([[1],[0],[0]])
 
 main(input, output, initialState)
-draw_petri_net(input, output)
+#draw_petri_net(input, output)
+draw_graph(Graph)
+
 tInvarient, pInvarient = InvarientSolver(input, output)
 print("T-Invarient = " + str(tInvarient))
 print("P-Invarient = " + str(pInvarient))
