@@ -4,17 +4,7 @@ from sympy import *
 import networkx as nx
 import matplotlib.pyplot as plt
 
-NumberOfIt = 0
-Trans = 0
-MaxMarking = 0
-MarkingList = []
-Cyclic = False
-Dead = False
-TabIndex = 0
-grafos = nx.Graph()
-node_positions = {}
-
-def main(input, output, state):
+def main(input, output, state, initialState, transitions):
     global NumberOfIt
     global MarkingList
     global Dead
@@ -35,9 +25,7 @@ def main(input, output, state):
 
     # Matriz de incidencia
     A = output - input
-
-    transitions = GetTransitions(input, state)
-    print(transitions, NumberOfIt)
+    transitions = GetTransitions(input, state, transitions)
     
     NumberOfIt = NumberOfIt + 1
     if NumberOfIt > 20:
@@ -48,100 +36,97 @@ def main(input, output, state):
         # Marking DEAD
         Dead = True
         print("Dead")
-    elif sum(transitions[0, :]) > 1:
-        # Multiples Ramas
-        for count in range(0, np.shape(transitions)[1]):
-            u = np.zeros([1, np.shape(transitions)[1]])
-            if transitions[0, count] == 1:
-                Trans = count
-                u[0, count] = 1
-                # print("Se produce una rama")
-                print(u.T)
-                print("AAAA")
-                NM = NextMarking(A, state, u.T)
-                MaxMarking = CheckMaxMarking(NM, MaxMarking)
-                found = False
-                for elm in MarkingList:
-                    if np.array_equal(elm, NM):
-                        found = True
-                        break
-                    #aca lode graph
-                # if not found:
-                #     graphName = str(NM.T.flatten())
-                #     grafos.add_node(graphName)
-                #     grafos.add_edge(lastTrans, graphName)
-                #     node_positions[graphName] = (NumberOfIt, count)
-                #     lastTrans = graphName               
+    # elif sum(transitions[0, :]) > 1:
+    #     # Multiples Ramas
+    #     for count in range(0, np.shape(transitions)[1]):
+    #         u = np.zeros([1, np.shape(transitions)[1]])
+    #         if transitions[0, count] == 1:
+    #             Trans = count
+    #             u[0, count] = 1
+    #             # print("Se produce una rama")
+    #             NM = NextMarking(A, initialState, u.T)
+    #             MaxMarking = CheckMaxMarking(NM, MaxMarking)
+    #             found = False
+    #             for elm in MarkingList:
+    #                 if np.array_equal(elm, NM):
+    #                     found = True
+    #                     break
+    #                 #aca lode graph
+    #             # if not found:
+    #             #     graphName = str(NM.T.flatten())
+    #             #     grafos.add_node(graphName)
+    #             #     grafos.add_edge(lastTrans, graphName)
+    #             #     node_positions[graphName] = (NumberOfIt, count)
+    #             #     lastTrans = graphName               
 
-                graphName = str(NM.T.flatten())
-                grafos.add_node(graphName)
-                grafos.add_edge(lastTrans, graphName)
-                node_positions[graphName] = (NumberOfIt, count * 2)
-                lastTrans = graphName
+    #             graphName = str(NM.T.flatten())
+    #             grafos.add_node(graphName)
+    #             grafos.add_edge(lastTrans, graphName)
+    #             node_positions[graphName] = (NumberOfIt, count * 2)
+    #             lastTrans = graphName
 
-                if found:
-                    Cyclic = True
-                    for i in range(TabIndex):
-                        print('    ', end=' ')
-                    # print("Ciclo Encontrado" + str(NM.T))
+    #             if found:
+    #                 Cyclic = True
+    #                 for i in range(TabIndex):
+    #                     print('    ', end=' ')
+    #                 print("Ciclo Encontrado" + str(NM.T))
 
-                else:
-                    MarkingList.append(NM)
-                    for i in range(TabIndex):
-                        print('    ', end=' ')
-                    # print(str(NM.T) + "--> Realizada Transición: " + str(Trans + 1))
-                    TabIndex = TabIndex + 1
-                    main(input, output, NM)
-                    TabIndex = TabIndex - 1
+    #             else:
+    #                 MarkingList.append(NM)
+    #                 for i in range(TabIndex):
+    #                     print('    ', end=' ')
+    #                 print(str(NM.T) + "--> Realizada Transición: " + str(Trans + 1))
+    #                 TabIndex = TabIndex + 1
+    #                 main(input, output, NM, initialState, transitions)
+    #                 TabIndex = TabIndex - 1
 
+    # else:
+    # Camino Único
+    NM = NextMarking(A, initialState, transitions.T)
+    MaxMarking = CheckMaxMarking(NM, MaxMarking)
+    found = False
+
+    graphName = str(NM.T.flatten())
+    grafos.add_node(graphName)
+    grafos.add_edge(lastTrans, graphName)
+    node_positions[graphName] = (NumberOfIt, 0)
+    lastTrans = graphName
+
+    for elm in MarkingList:
+        if np.array_equal(elm, NM.astype(int)):
+            found = True
+            break
+                #aca lode graph
+        # if not found:
+        #     graphName = str(NM.T.flatten())
+        #     grafos.add_node(graphName)
+        #     grafos.add_edge(lastTrans, graphName)
+        #     node_positions[graphName] = (NumberOfIt, 0)
+        #     lastTrans = graphName
+            
+    if found:
+        Cyclic = True
+        for i in range(TabIndex):
+            print('    ', end=' ')
+        print("Ciclo encontrado" + str(NM.T))
     else:
-        # Camino Único
-        NM = NextMarking(A, state, transitions.T)
-        MaxMarking = CheckMaxMarking(NM, MaxMarking)
-        found = False
-
-        graphName = str(NM.T.flatten())
-        grafos.add_node(graphName)
-        grafos.add_edge(lastTrans, graphName)
-        node_positions[graphName] = (NumberOfIt, 0)
-        lastTrans = graphName
-
-        for elm in MarkingList:
-            if np.array_equal(elm, NM):
-                found = True
-                break
-                    #aca lode graph
-            # if not found:
-            #     graphName = str(NM.T.flatten())
-            #     grafos.add_node(graphName)
-            #     grafos.add_edge(lastTrans, graphName)
-            #     node_positions[graphName] = (NumberOfIt, 0)
-            #     lastTrans = graphName
-                
-        if found:
-            Cyclic = True
-            for i in range(TabIndex):
-                print('    ', end=' ')
-            # print("Ciclo encontrado" + str(NM.T))
-        else:
-            MarkingList.append(NM)
-            for i in range(TabIndex):
-                print('    ', end=' ')
-            # print("Transition " + str(Trans + 1) + ": " + str(NM.T))
-            main(input, output, NM)     
+        MarkingList.append(NM)
+        for i in range(TabIndex):
+            print('    ', end=' ')
+        print("Transition " + str(NumberOfIt) + ": " + str(NM.T))
+        main(input, output, NM, initialState, transitions)     
             
 def CheckMaxMarking(nextMarking, MaxMarking):
     if max(nextMarking) > MaxMarking:
         return int(np.max(nextMarking, axis=None))
     return MaxMarking
 
-def GetTransitions(input, state):
-    # Determina que transiciones pueden dispararse
+def GetTransitions(input, state, transitions):
     u = np.zeros([1, np.shape(input)[1]])
     for i in range(0, np.shape(input)[1]):
         if np.amin(state.T - input[:, i]) > -1:
             u[0, i] = 1
-    return u
+    return u + transitions
 
 def InvarientSolver(input, output):
     A = Matrix(output - input)
@@ -164,7 +149,7 @@ def nullspace(A, atol=1e-13, rtol=0):
     return ns
 
 def NextMarking(A, M, u):
-    MPrime = M + np.dot(A, u)
+    MPrime = M.flatten() + np.dot(u.flatten(), A)
     return MPrime
 
 def draw_petri_net(input, output):
@@ -230,12 +215,24 @@ input = np.asarray([[1,0,0],[0,1,0],[0,0,1]])
 output = np.asarray([[0,1,0],[0,0,1],[1,0,0]])
 initialState = np.asarray([[1],[0],[0]])
 
+
+NumberOfIt = 0
+Trans = 0
+MaxMarking = 0
+MarkingList = [initialState.flatten()]
+Cyclic = False
+Dead = False
+TabIndex = 0
+grafos = nx.Graph()
+node_positions = {}
+
+
 grafos.add_node(str(initialState.flatten()))
 node_positions[str(initialState.flatten())] = (0, 0)
-main(input, output, initialState)
+main(input, output, initialState, initialState, np.zeros([1, np.shape(input)[1]]))
 # draw_petri_net(input, output)
 tInvarient, pInvarient = InvarientSolver(input, output)
-print("T-Invarient = " + str(tInvarient))
+print("\nT-Invarient = " + str(tInvarient))
 print("P-Invarient = " + str(pInvarient))
 print("Ciclo encontrado = " + str(Cyclic))
 print("Dead Encontrado = " + str(Dead))
@@ -244,7 +241,6 @@ if MaxMarking > 6:
 else:
     print("La red de Petri es " + str(MaxMarking) + " acotada")
 
-# print(node_positions)
 node_color = 'lightblue'  # Color de fondo
 nx.draw(grafos, pos=node_positions, with_labels=True, node_size=500, node_color=node_color, font_size=10, node_shape='s')  # 's' representa cuadrados
 
