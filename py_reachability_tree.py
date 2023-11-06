@@ -69,7 +69,7 @@ def main(input, output, state):
                     Cyclic = True
                     for i in range(TabIndex):
                         print('    ', end=' ')
-                    print("Ciclo Encontrado" + str(NM.T))
+                    print("Ciclo Encontrado " + str(NM.T))
                 else:
                     MarkingList.append(NM)
                     for i in range(TabIndex):
@@ -116,7 +116,7 @@ def GetTransitions(input, state):
     for i in range(0, np.shape(input)[1]):
         if np.amin(state.T - input[:, i]) > -1:
             u[0, i] = 1
-    print (f"el u es: {u}")
+    #print (f"el u es: {u}")
     return u
 
 def InvarientSolver(input, output):
