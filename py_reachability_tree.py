@@ -165,30 +165,27 @@ def draw_petri_net(input, output):
     nx.draw_networkx_labels(G, pos)
     plt.show()
 
-input = np.asarray([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-output = np.asarray([[0, 1, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-initialState = np.asarray([[1], [0], [1], [1], [1]])
+#input = np.asarray([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+#output = np.asarray([[0, 1, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
+#initialState = np.asarray([[1], [0], [1], [1], [1]])
 
-""" input = np.asarray([[1, 0, 0],
-                    [1, 0, 0], 
-                    [1, 0, 1], 
-                    [0, 1, 0]])
-output = np.asarray([[1, 0, 0], 
-                     [0, 1, 0], 
-                     [0, 1, 0], 
-                     [0, 0, 1]])
-initialState = np.asarray([[1], [0], [1], [0]]) """
+#input = np.asarray([[1, 0, 0],[1, 0, 0], [1, 0, 1], [0, 1, 0]])
+#output = np.asarray([[1, 0, 0], [0, 1, 0], [0, 1, 0],[0, 0, 1]])
+#initialState = np.asarray([[1], [0], [1], [0]]) 
 
 # T Invarient 
-# input = np.asarray([[0, 1, 0, 2], [1, 1, 0, 0], [0, 0, 1, 0]])
-# output = np.asarray([[1, 0, 0, 2], [0, 0, 1, 0], [0, 2, 0, 0]])
-# initialState = np.asarray([[1], [1], [0]])
+#input = np.asarray([[0, 1, 0, 2], [1, 1, 0, 0], [0, 0, 1, 0]])
+#output = np.asarray([[1, 0, 0, 2], [0, 0, 1, 0], [0, 2, 0, 0]])
+#initialState = np.asarray([[1], [1], [0]])
 
 # P Invarient 
 # input = np.asarray([[2, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [1, 0, 0, 1]])
 # output = np.asarray([[0, 2, 0, 0], [1, 0, 0, 0], [0, 0, 0, 1], [1, 0, 1, 0]])
 # initialState = np.asarray([[3], [0], [1], [0]])
 
+input = np.asarray([[1,0,0],[0,1,0],[0,0,1]])
+output = np.asarray([[0,1,0],[0,0,1],[1,0,0]])
+initialState = np.asarray([[1],[0],[0]])
 
 main(input, output, initialState)
 draw_petri_net(input, output)
