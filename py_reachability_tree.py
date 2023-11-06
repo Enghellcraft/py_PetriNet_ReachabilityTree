@@ -12,7 +12,7 @@ Cyclic = False
 Dead = False
 TabIndex = 0
 
-def main(input, output, state):
+def main(input, output, state, dicc):
     global NumberOfIt
     global MarkingList
     global Dead
@@ -66,9 +66,9 @@ def main(input, output, state):
                     MarkingList.append(NM)
                     for i in range(TabIndex):
                         print('    ', end=' ')
-                    print(str(NM.T) + "--> Realizada Transición: " + str(Trans + 1))
+                    print(str(NM.T) + "--> Realizada Transición: " + TransitionsMade(dicc, NM.T))
                     TabIndex = TabIndex + 1
-                    main(input, output, NM)
+                    main(input, output, NM, dicc)
                     TabIndex = TabIndex - 1
 
     else:
@@ -90,9 +90,50 @@ def main(input, output, state):
             MarkingList.append(NM)
             for i in range(TabIndex):
                 print('    ', end=' ')
-            print("Transition " + str(Trans + 1) + ": " + str(NM.T))
-            main(input, output, NM)      
-            
+            print(str(NM.T) + "--> Realizada Transición: " + TransitionsMade(dicc, NM.T))
+            main(input, output, NM, dicc)      
+        
+def AllTransitions(A, state, transitions):
+    global all_trans
+    global all_marks
+
+    statee = state.flatten()
+    u = np.zeros(len(statee))
+    marking = np.zeros(len(statee))
+    lugares_marcados = []
+
+    for i in range(A.shape[0]):
+        if statee[i] > 0:
+            lugares_marcados.append(i)
+    
+    for N in lugares_marcados:
+        transiciones_disponibles = np.where(A[:, N] < 0)[0]
+        for j in transiciones_disponibles:
+            lugares_disponibles = np.where(A[j, :] > 0)[0]
+            for i in lugares_disponibles:
+                if statee[i] < A[j, i]:
+                    u[N] = 1
+                    marking[i] = A[j, i]
+
+    actual_transitions = u + transitions
+    all_trans.append(actual_transitions)
+    all_marks.append(marking)
+
+    if np.all(actual_transitions == 1) or len(all_trans) > 20:
+        return
+    else:
+        AllTransitions(A, marking, actual_transitions)
+
+def TransitionsMade(dicc, state):
+    trans = dicc[str(state.flatten())]
+    string = ""
+
+    for i in range(len(trans)):
+        if trans[i] > 0:
+            string += "T" + str(i + 1) + " "
+
+    return string
+
 def CheckMaxMarking(nextMarking, MaxMarking):
     if max(nextMarking) > MaxMarking:
         return int(np.max(nextMarking, axis=None))
@@ -165,9 +206,9 @@ def draw_petri_net(input, output):
     nx.draw_networkx_labels(G, pos)
     plt.show()
 
-#input = np.asarray([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-#output = np.asarray([[0, 1, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-#initialState = np.asarray([[1], [0], [1], [1], [1]])
+# input = np.asarray([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+# output = np.asarray([[0, 1, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
+# initialState = np.asarray([[1], [0], [1], [1], [1]])
 
 #input = np.asarray([[1, 0, 0],[1, 0, 0], [1, 0, 1], [0, 1, 0]])
 #output = np.asarray([[1, 0, 0], [0, 1, 0], [0, 1, 0],[0, 0, 1]])
@@ -187,10 +228,18 @@ input = np.asarray([[1,0,0],[0,1,0],[0,0,1]])
 output = np.asarray([[0,1,0],[0,0,1],[1,0,0]])
 initialState = np.asarray([[1],[0],[0]])
 
-main(input, output, initialState)
+all_trans = []
+all_marks = []
+AllTransitions(output - input, initialState, np.zeros(len(initialState.flatten())))
+
+dicc = {}
+for i in range(len(all_trans)):
+    dicc[str(all_marks[i])] = all_trans[i]
+
+main(input, output, initialState, dicc)
 draw_petri_net(input, output)
 tInvarient, pInvarient = InvarientSolver(input, output)
-print("T-Invarient = " + str(tInvarient))
+print("\nT-Invarient = " + str(tInvarient))
 print("P-Invarient = " + str(pInvarient))
 print("Ciclo encontrado = " + str(Cyclic))
 print("Dead Encontrado = " + str(Dead))
