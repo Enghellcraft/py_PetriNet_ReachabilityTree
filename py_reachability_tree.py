@@ -74,7 +74,8 @@ def main(input, output, state):
     else:
         # Camino Único
         Trans += 1
-        print("Transitions: ", transitions, "Nro:", Trans)
+        if(Trans == 1):
+            print("Transitions Nro:", Trans, ": ",transitions)
         NM = NextMarking(A, state, transitions.T)
         MaxMarking = CheckMaxMarking(NM, MaxMarking)
         found = False
@@ -92,6 +93,7 @@ def main(input, output, state):
             MarkingList.append(NM)
             for i in range(TabIndex):
                 print('    ', end=' ')
+            print("Transitions Nro:", (Trans+1), ": ", NM.T)
             main(input, output, NM)      
             
 def CheckMaxMarking(nextMarking, MaxMarking):
@@ -106,6 +108,11 @@ def GetTransitions(input, state):
         if np.amin(state.T - input[:, i]) > -1:
             u[0, i] = 1
     return u
+
+def NextMarking(A, M, u):
+    MPrime = M + np.dot(A, u)
+    # print(MPrime.T)
+    return MPrime
 
 def InvarientSolver(input, output):
     A = Matrix(output - input)
@@ -127,10 +134,7 @@ def nullspace(A, atol=1e-13, rtol=0):
     ns = vh[nnz:].conj().T
     return ns
 
-def NextMarking(A, M, u):
-    MPrime = M + np.dot(A, u)
-    # print(MPrime.T)
-    return MPrime
+
 
 def draw_petri_net(input, output):
     # Crea grafo dirigido
