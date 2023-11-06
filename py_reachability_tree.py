@@ -11,6 +11,7 @@ MarkingList = []
 Cyclic = False
 Dead = False
 TabIndex = 0
+Graph = nx.DiGraph()
 
 def main(input, output, state):
     global NumberOfIt
@@ -20,6 +21,10 @@ def main(input, output, state):
     global TabIndex
     global Trans
     global MaxMarking
+    global Graph
+    
+    def print_transition(state, transition, transition_number):
+       print(str(state.T) + "--> Realizada Transición: " + str(transition_number + 1))
 
     if np.shape(input) != np.shape(output):
         print("Error: Matrices de Input y Output deben tener las mismas dimensiones")
@@ -44,9 +49,9 @@ def main(input, output, state):
         print("Dead")
     elif sum(transitions[0, :]) > 1:
         # Multiples Ramas
-        for count in range(0, np.shape(transitions)[1]):
+        for count, transition in enumerate(transitions[0, :]):
             u = np.zeros([1, np.shape(transitions)[1]])
-            if transitions[0, count] == 1:
+            if transition == 1:
                 Trans = count
                 u[0, count] = 1
                 # print("Se produce una rama")
@@ -57,6 +62,9 @@ def main(input, output, state):
                     if np.array_equal(elm, NM):
                         found = True
                         break
+                if not found:
+                    Graph.add_node(str(NM.T))
+                    Graph.add_edge(str(state.T), str(NM.T))     
                 if found:
                     Cyclic = True
                     for i in range(TabIndex):
@@ -66,7 +74,7 @@ def main(input, output, state):
                     MarkingList.append(NM)
                     for i in range(TabIndex):
                         print('    ', end=' ')
-                    print(str(NM.T) + "--> Realizada Transición: " + str(Trans + 1))
+                    print_transition(NM, count)
                     TabIndex = TabIndex + 1
                     main(input, output, NM)
                     TabIndex = TabIndex - 1
@@ -80,6 +88,9 @@ def main(input, output, state):
             if np.array_equal(elm, NM):
                 found = True
                 break
+        if not found:
+            Graph.add_node(str(NM.T))
+            Graph.add_edge(str(state.T), str(NM.T))
 
         if found:
             Cyclic = True
@@ -90,9 +101,10 @@ def main(input, output, state):
             MarkingList.append(NM)
             for i in range(TabIndex):
                 print('    ', end=' ')
-            print("Transition " + str(Trans + 1) + ": " + str(NM.T))
-            main(input, output, NM)      
-            
+            count = 0  # Define count here
+            print_transition(NM, Trans, count)
+            main(input, output, NM)
+        
 def CheckMaxMarking(nextMarking, MaxMarking):
     if max(nextMarking) > MaxMarking:
         return int(np.max(nextMarking, axis=None))
@@ -104,6 +116,7 @@ def GetTransitions(input, state):
     for i in range(0, np.shape(input)[1]):
         if np.amin(state.T - input[:, i]) > -1:
             u[0, i] = 1
+    print (f"el u es: {u}")
     return u
 
 def InvarientSolver(input, output):
@@ -165,9 +178,26 @@ def draw_petri_net(input, output):
     nx.draw_networkx_labels(G, pos)
     plt.show()
 
-input = np.asarray([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-output = np.asarray([[0, 1, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-initialState = np.asarray([[1], [0], [1], [1], [1]])
+def draw_graph(G):
+    # Create a new figure
+    plt.figure(figsize=(10, 10))
+
+    # Draw the graph
+    nx.draw(G, with_labels=True)
+
+    # Position the nodes manually
+    pos = nx.spring_layout(G)
+    pos = nx.kamada_kawai_layout(G)
+
+    # Update the positions of the nodes
+    nx.draw_networkx_nodes(G, pos)
+    nx.draw_networkx_labels(G, pos)
+
+    plt.show()
+    
+#input = np.asarray([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+#output = np.asarray([[0, 1, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
+#initialState = np.asarray([[1], [0], [1], [1], [1]])
 
 """ input = np.asarray([[1, 0, 0],
                     [1, 0, 0], 
@@ -189,9 +219,15 @@ initialState = np.asarray([[1], [0], [1], [0]]) """
 # output = np.asarray([[0, 2, 0, 0], [1, 0, 0, 0], [0, 0, 0, 1], [1, 0, 1, 0]])
 # initialState = np.asarray([[3], [0], [1], [0]])
 
+input = np.asarray([[1,0,0],[0,1,0],[0,0,1]])
+output = np.asarray([[0,1,0],[0,0,1],[1,0,0]])
+initialState = np.asarray([[1],[0],[0]])
+
 
 main(input, output, initialState)
 draw_petri_net(input, output)
+draw_graph(Graph)
+
 tInvarient, pInvarient = InvarientSolver(input, output)
 print("T-Invarient = " + str(tInvarient))
 print("P-Invarient = " + str(pInvarient))
