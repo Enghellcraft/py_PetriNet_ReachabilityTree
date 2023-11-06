@@ -98,34 +98,42 @@ def AllTransitions(A, state, transitions):
     global all_marks
 
     statee = state.flatten()
-    u = np.zeros(len(statee))
+    u = np.zeros(len(transitions))
     marking = np.zeros(len(statee))
     lugares_marcados = []
 
-    for i in range(A.shape[0]):
+    for i in range(len(statee)):
         if statee[i] > 0:
             lugares_marcados.append(i)
     
+    # print("lugares marcados", lugares_marcados)
     for N in lugares_marcados:
+        # print("N", N)
+        # print(A[:, N])
         transiciones_disponibles = np.where(A[:, N] < 0)[0]
+        # print("transiciones disponibles", transiciones_disponibles)
         for j in transiciones_disponibles:
+            # print(A[j, :])
             lugares_disponibles = np.where(A[j, :] > 0)[0]
+            # print("lugares disponibles", lugares_disponibles)
             for i in lugares_disponibles:
-                if statee[i] < A[j, i]:
-                    u[N] = 1
-                    marking[i] = A[j, i]
+                # if statee[i] < A[j, i]:
+                u[j] = 1
+                marking[i] += A[j, i]
+                # print("MARKING ACTUAL", marking)
 
     actual_transitions = u + transitions
     all_trans.append(actual_transitions)
     all_marks.append(marking)
 
-    if np.all(actual_transitions == 1) or len(all_trans) > 20:
+    if np.all(actual_transitions == 1) or len(all_trans) > 10:
         return
     else:
         AllTransitions(A, marking, actual_transitions)
 
 def TransitionsMade(dicc, state):
-    trans = dicc[str(state.flatten())]
+    # trans = dicc[str(state.flatten())]
+    trans = dicc[state]
     string = ""
 
     for i in range(len(trans)):
@@ -206,9 +214,9 @@ def draw_petri_net(input, output):
     nx.draw_networkx_labels(G, pos)
     plt.show()
 
-# input = np.asarray([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-# output = np.asarray([[0, 1, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-# initialState = np.asarray([[1], [0], [1], [1], [1]])
+input = np.asarray([[1, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0]])
+output = np.asarray([[0, 1, 0, 0, 0], [1, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 0, 1, 0]])
+initialState = np.asarray([[1], [0], [1], [1], [1]])
 
 #input = np.asarray([[1, 0, 0],[1, 0, 0], [1, 0, 1], [0, 1, 0]])
 #output = np.asarray([[1, 0, 0], [0, 1, 0], [0, 1, 0],[0, 0, 1]])
@@ -224,19 +232,22 @@ def draw_petri_net(input, output):
 # output = np.asarray([[0, 2, 0, 0], [1, 0, 0, 0], [0, 0, 0, 1], [1, 0, 1, 0]])
 # initialState = np.asarray([[3], [0], [1], [0]])
 
-input = np.asarray([[1,0,0],[0,1,0],[0,0,1]])
-output = np.asarray([[0,1,0],[0,0,1],[1,0,0]])
-initialState = np.asarray([[1],[0],[0]])
+# input = np.asarray([[1,0,0],[0,1,0],[0,0,1]])
+# output = np.asarray([[0,1,0],[0,0,1],[1,0,0]])
+# initialState = np.asarray([[1],[0],[0]])
 
 all_trans = []
 all_marks = []
-AllTransitions(output - input, initialState, np.zeros(len(initialState.flatten())))
+AllTransitions(output - input, initialState, np.zeros(input.shape[0]))
 
 dicc = {}
 for i in range(len(all_trans)):
     dicc[str(all_marks[i])] = all_trans[i]
 
-main(input, output, initialState, dicc)
+for clave, valor in dicc.items():
+    print(f"{clave}: {TransitionsMade(dicc, clave)}")
+
+# main(input, output, initialState, dicc)
 draw_petri_net(input, output)
 tInvarient, pInvarient = InvarientSolver(input, output)
 print("\nT-Invarient = " + str(tInvarient))
