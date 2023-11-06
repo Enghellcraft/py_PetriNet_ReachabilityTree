@@ -108,6 +108,7 @@ def main(input, output, state, initialState, transitions):
         Cyclic = True
         for i in range(TabIndex):
             print('    ', end=' ')
+        print("Transition " + str(NumberOfIt) + ": " + str(NM.T))
         print("Ciclo encontrado" + str(NM.T))
     else:
         MarkingList.append(NM)
